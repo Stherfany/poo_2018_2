@@ -12,7 +12,7 @@ void show(){
     cout<<"pass: "<< pass <<", gas: "<< gas<<", km: "<< km<< endl;
 }
 void passag(){
-    if(pass==passMax){
+    if(pass>=passMax){
         cout<< "fail: limite de passageiros atingido"<<endl;
     }
     else {
@@ -39,35 +39,35 @@ void fuel(int b){
     }
 }
 void drive(int dist){
-    if((pass>0) && (gas>0)){
+    if((pass!=0) && (gas!=0)){
         km=km+dist;
-        gas=gas+(dist%10);
+        gas=gas-(dist/10);
     }
     else {
-        if(gas<=0){
+        if(gas==0){
             cout<<"fail: gasolina insuficiente"<<endl;
         }
-        else {
-            
-        }
+        else{
+            if(pass==0){
+                cout<<"fail: nao ha passageiros"<<endl;
+            }}
     }
 }
-};
-
 
 int main(){
     Carro carro={0,10, 0,2,0};
     string op;
-    int g;
     while (true){
         cin>>op;
         if(op=="show"){
             carro.show();
         }
-        else {
-            if(op=="passag"){
+        if(op=="fim"){
+            break;
+        }
+        if(op=="passag"){
             carro.passag();
-        }}
+        }
         if(op=="out"){
             carro.out();
         }
@@ -75,6 +75,11 @@ int main(){
             float g;
             cin>>g;
             carro.fuel(g);
+        }
+        if(op=="drive"){
+            float d;
+            cin>>d;
+            carro.drive(d);
         }
     }
     return 0;
