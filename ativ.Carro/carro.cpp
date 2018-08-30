@@ -39,20 +39,21 @@ void fuel(int b){
     }
 }
 void drive(int dist){
-    if((pass!=0) && (gas!=0)){
-        km=km+dist;
-        gas=gas-(dist/10);
+    if(pass==0){
+        cout<<"fail: nao ha passageiros"<<endl;
     }
-    else {
-        if(gas==0){
+    else{
+        if(gas<dist/10){
             cout<<"fail: gasolina insuficiente"<<endl;
         }
-        else{
-            if(pass==0){
-                cout<<"fail: nao ha passageiros"<<endl;
-            }}
+        else {
+            km=km+dist;
+            gas=gas-(dist/10);
+            cout<<"done"<<endl;
+        }
     }
 }
+};
 
 int main(){
     Carro carro={0,10, 0,2,0};
