@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 using namespace std;
 
 template<typename T>
@@ -33,7 +34,7 @@ struct Repositorio{
             throw"usuario nao existe";
     }
 };
-//
+
 class Tweet{
 public:
     int id;
@@ -47,11 +48,7 @@ public:
     }
 
     void Like (string username){
-        for (auto l : likes){
-            if (l == username)
-                throw "ja curtiu\n" ;
-        }
-        likes.push_back(username);
+            likes.push_back(username);
     }
 
    string toString (){
@@ -100,7 +97,6 @@ public:
 
     void newT (Tweet* tw){
         mytweets.push_back(tw);
-        timeline.push_back(tw);
         for (auto seguidor : seguidores){
             seguidor -> timeline.push_back(tw);
             seguidor -> notRead++;
@@ -121,24 +117,40 @@ public:
 
     string show_timeline (){
         string lista;
-        for (auto tweet : timeline) {
-            lista += tweet -> toString() + "\n";
+        if (timeline.size() == 0)
+            throw "nao ha tweet";
+        for (auto it = timeline.end()-1; it >= timeline.begin(); it--) {
+            lista += (*it) -> toString() + "\n";
         }
+        notRead = 0;
         return lista;
     }
 
     string show_meus (){
         string mine;
-        for (auto tweet : mytweets) {
-            mine += tweet -> toString() + "\n";
+        if (mytweets.size() == 0)
+            throw "nao ha tweet";
+        for (auto it = mytweets.end() -1; it >= mytweets.begin(); it--) {
+            mine += (*it) -> toString() + "\n";
         }
         return mine;
     }
 
-    void dar_like (string username, int id){
-        for (auto t : timeline)
-            if (t->id == id) 
+    string nao_lidos (){
+        string nRead;
+        for (auto i = 1; i <= notRead ; i++)
+            nRead += timeline[timeline.size()-i] -> toString() + "\n";
+        notRead = 0;
+        return nRead;
+    }
+
+    bool dar_like (string username, int id){
+        for (auto t : timeline){
+            if (t->id == id){
                 t ->  Like (username);
+                return true;
+            }
+        }
         throw "tweet nao existe";
     }
 };
@@ -184,6 +196,10 @@ public:
     void like (string username, int idt){
         repu -> get(username) -> dar_like(username, idt);
     }
+
+    void nao_lidos (string username){
+        cout << repu -> get(username) -> nao_lidos();
+    }
 };
 
 int main(){
@@ -206,12 +222,15 @@ int main(){
     twitter.twittar("sther","sera que vou conseguir?");
     twitter.twittar("davi","mee");
     twitter.twittar("sther","love u, mj <3");
+    twitter.nao_lidos("sther");
     twitter.timeline_user("sther");
     twitter.my_profile("sther");
     twitter.my_profile("davi");
-    twitter.my_profile("maysla");
-    twitter.like("maysla", 2);
-    twitter.my_profile("sther");
+    try {twitter.like("sther", 1);}
+    catch (const char* e) {
+        cout<< e <<  endl;
+    }
+    twitter.my_profile("davi");
 
     return 0;
 }
