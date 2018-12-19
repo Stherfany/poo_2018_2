@@ -15,8 +15,9 @@ class Pess : public Pass{
 private:
     string Id;
 public: 
-    Pess(string Id = " "){
-        this -> Id = Id;
+    Pess(string Id = " ") :
+        Id(Id)
+    {
     }
 
     string getId (){
@@ -27,30 +28,36 @@ public:
         return Id;
     }
 
-    ~Pess(){}
+    ~Pess(){
+    }
 };
-/*
+
 class Carga : public Pass{
 private:
     string Id;
     float peso;
 public: 
-    Carga(string Id = " ", float peso = 0){
-        this -> Id = Id;
-        this -> peso = peso;
+    Carga(string Id = " ", float peso = 0) :
+        Id(Id), peso(peso)
+    {
     }
 
     string getId (){
         return Id;
+    }
+
+    float getPeso (){
+        return peso;
     }
 
     string toString (){
         return Id + ":" + to_string(peso);
     }
 
-    ~Carga(){}
+    ~Carga(){
+    }
 };
-*/
+
 class Vagao{
 public:
     virtual bool embarcar (Pass* pass) = 0;
@@ -64,9 +71,11 @@ class VagaoP : public Vagao{
 private:
     vector<Pess*> vagaoP;
 public:
-    VagaoP(int capacidade = 0){
-        for (int i = 0; i < capacidade; i++)
-            vagaoP.push_back(nullptr);
+    VagaoP(int capacidade = 0) :
+        vagaoP(capacidade, nullptr)
+    {
+        /*for (int i = 0; i < capacidade; i++)
+            vagaoP.push_back(nullptr);*/
     }
     
     ~VagaoP(){
@@ -91,6 +100,63 @@ public:
 
     bool desembarcar (string idpess){
         for(int i = 0; i < vagaoP.size(); i++){
+            if(vagaoP[i] != nullptr && vagaoP[i] -> getId() == idpess){
+                vagaoP[i] = nullptr;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool existe (string id){
+        for (auto pess : vagaoP){
+            if (pess != nullptr && pess -> getId() == id)
+                return true;
+        }
+        return false;
+    }
+
+    string toString (){
+        string vagao;
+        for (auto pessoa : vagaoP){
+            if (pessoa == nullptr)
+                vagao += "- ";
+            else vagao += pessoa -> getId() + " ";
+        }
+        return "[ " + vagao + "]";
+    }
+};
+
+/*class VagaoC : public Vagao{
+private:
+    map<string, Carga*> vagaoC;
+    int pesoMax;
+public:
+    VagaoC(int pesoMax = 0){
+        this -> pesoMax = pesoMax;
+    }
+    
+    ~VagaoC(){
+        for(auto carga : vagaoC){
+            delete carga.second;
+        }
+    }
+
+    bool existe (string chave){
+        if(vagaoC.find(chave) != vagaoC.end())
+            return true;
+        else return false;
+    }
+
+    bool embarcar(Pass* pass){
+        if (Carga* carga = dynamic_cast<Carga*>(pass)){
+            
+        }
+        return false;
+    }
+
+    bool desembarcar (string idpess){
+        for(int i = 0; i < vagaoC.size(); i++){
             if(vagaoP[i] != nullptr && vagaoP[i] -> getId() == idpess)
                 vagaoP[i] = nullptr;
                 return true;
@@ -115,13 +181,14 @@ public:
         }
         return "[ " + vagao + "]";
     }
-};
+};*/
 
 class Trem{
-public:
+private:
     int maxVagoes;
     vector <Vagao*> vagoes;
 
+public:
     Trem(int maxVagoes = 0) :
         maxVagoes(maxVagoes)
     {
@@ -134,7 +201,7 @@ public:
     }
     
     bool addV (Vagao* vag){
-        if ((int)vagoes.size() < maxVagoes) {
+        if ((int) vagoes.size() < maxVagoes) {
             vagoes.push_back(vag);
             return true;
         }
@@ -143,18 +210,16 @@ public:
 
     bool embarcar (Pass* coisa){
         for (auto vagao : vagoes){
-            if (vagao -> embarcar(coisa)){
+            if (vagao -> embarcar(coisa))
                 return true;
-            }
         }
         return false;
     }
 
     bool desembarcar (string idE){
         for (auto vagao : vagoes){
-            if (vagao -> desembarcar(idE)){
+            if (vagao -> desembarcar(idE))
                 return true;
-            }
         }
         return false;
     }
@@ -177,9 +242,11 @@ T read (stringstream& ss){
 }
 
 class Controller{
-public:
+private:
     Trem trem;
-    Controller(){}
+public:
+    Controller(){
+    }
 
     void shell(string line){
         stringstream ss(line);
@@ -192,7 +259,7 @@ public:
                 if(!trem.addV(vagao))
                     delete vagao;
         } else if(op == "embP"){
-            Pass* pess = new Pess (read<string>(ss));
+            Pess* pess = new Pess (read<string>(ss));
             trem.embarcar(pess);
         } else if(op == "des"){
             if(!trem.desembarcar(read<string>(ss)))
@@ -213,7 +280,7 @@ public:
     }
 };
 
-int main (){
+int main(){
     Controller contr;
     contr.exec();
     return 0;
