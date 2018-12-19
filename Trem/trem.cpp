@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 using namespace std;
 
 class Pass{
@@ -86,7 +87,7 @@ public:
 
     bool embarcar(Pass* pass){
         if (Pess* pess = dynamic_cast<Pess*>(pass)){
-            for(int i = 0; i < vagaoP.size(); i++){
+            for(unsigned int i = 0; i < vagaoP.size(); i++){
                 if(vagaoP[i] == nullptr){
                     if(!existe(pess -> getId())){
                         vagaoP[i] = pess;
@@ -99,7 +100,7 @@ public:
     }
 
     bool desembarcar (string idpess){
-        for(int i = 0; i < vagaoP.size(); i++){
+        for(unsigned int i = 0; i < vagaoP.size(); i++){
             if(vagaoP[i] != nullptr && vagaoP[i] -> getId() == idpess){
                 vagaoP[i] = nullptr;
                 return true;
@@ -127,7 +128,7 @@ public:
     }
 };
 
-/*class VagaoC : public Vagao{
+class VagaoC : public Vagao{
 private:
     map<string, Carga*> vagaoC;
     int pesoMax;
@@ -150,38 +151,37 @@ public:
 
     bool embarcar(Pass* pass){
         if (Carga* carga = dynamic_cast<Carga*>(pass)){
-            
+            if(carga -> getPeso() <= pesoMax){
+                if(!existe(carga -> getId())){
+                    vagaoC[carga -> getId()] = carga;
+                    pesoMax -= carga -> getPeso();
+                    return true;
+                }
+            }
+
         }
         return false;
     }
 
-    bool desembarcar (string idpess){
-        for(int i = 0; i < vagaoC.size(); i++){
-            if(vagaoP[i] != nullptr && vagaoP[i] -> getId() == idpess)
-                vagaoP[i] = nullptr;
-                return true;
+    bool desembarcar(string idC){
+        if(existe(idC)){
+            pesoMax += vagaoC.find(idC) -> second -> getPeso();
+            vagaoC.erase(vagaoC.find(idC));
+            return true;
         }
         return false;
     }
 
-    bool existe (string id){
-        for (auto pess : vagaoP){
-            if (pess != nullptr && pess -> getId() == id)
-                return true;
+    string toString(){
+        string vagaocar;
+        vagaocar = "( ";
+        for (auto par : vagaoC){
+            vagaocar += par.second -> toString() + " ";
         }
-        return false;
+        vagaocar += "_" + to_string(pesoMax) + " )";
+        return vagaocar;
     }
-
-    string toString (){
-        string vagao;
-        for (auto pessoa : vagaoP){
-            if (pessoa == nullptr)
-                vagao += "- ";
-            else vagao += pessoa -> getId() + " ";
-        }
-        return "[ " + vagao + "]";
-    }
-};*/
+};
 
 class Trem{
 private:
@@ -266,6 +266,13 @@ public:
                 cout << "fail: nao esta no trem" << endl;
         } else if (op == "mostrar"){
             cout << trem.toString() << endl;
+        } else if(op == "addvc"){
+            Vagao* vagao = new VagaoC (read<float>(ss));
+                if(!trem.addV(vagao))
+                    delete vagao;
+        } else if(op == "embC"){
+            Carga* carga = new Carga (read<string>(ss),read<float>(ss));
+            trem.embarcar(carga);
         } else cout << "comando invalido" << endl;
     }
 
