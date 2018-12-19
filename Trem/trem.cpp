@@ -244,6 +244,7 @@ T read (stringstream& ss){
 class Controller{
 private:
     Trem trem;
+    map<string,Pass*> cadastro;
 public:
     Controller(){
     }
@@ -259,7 +260,9 @@ public:
                 if(!trem.addV(vagao))
                     delete vagao;
         } else if(op == "embP"){
-            Pess* pess = new Pess (read<string>(ss));
+            string id = read<string>(ss);
+            Pess* pess = new Pess (id);
+            cadastro[id] = pess;
             trem.embarcar(pess);
         } else if(op == "des"){
             if(!trem.desembarcar(read<string>(ss)))
@@ -271,9 +274,14 @@ public:
                 if(!trem.addV(vagao))
                     delete vagao;
         } else if(op == "embC"){
-            Carga* carga = new Carga (read<string>(ss),read<float>(ss));
+            string id = read<string>(ss);
+            Carga* carga = new Carga (id,read<float>(ss));
+            cadastro[id] = carga;
             trem.embarcar(carga);
-        } else cout << "comando invalido" << endl;
+        } else if(op == "cadastros"){
+            for (auto par : cadastro)
+                cout << par.second -> toString() << endl;
+        }else cout << "comando invalido" << endl;
     }
 
     void exec (){
